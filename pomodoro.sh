@@ -52,15 +52,28 @@ function countdown()
 
 }
 
-work=$[ $2 * 60 ]
-short_break=$[ $3 * 60 ]
-long_break=$[ $4 * 60 ]
+# default values 
+if [ $# = 0 ];then
+    pomodoros=4
+    work=25 # minutes
+    short_break=5 # minutes
+    long_break=15 # minutes
+else
+    pomodoros=$1
+    work=$2
+    short_break=$3
+    long_break=$4
+fi
 
-echo "Pomodoro $1 $2 $3 $4"
+echo "Pomodoro $pomodoros $work $short_break $long_break"
 
-for i in $(seq 1 $1);do
+work=$[ $work * 60 ]
+short_break=$[ $short_break * 60 ]
+long_break=$[ $long_break * 60 ]
+
+for i in $(seq 1 $pomodoros);do
 	countdown w $work
-	if [ $i -lt $1 ]; then
+	if [ $i -lt $pomodoros ]; then
 		countdown sb $short_break
 	else
 		countdown lb $long_break
