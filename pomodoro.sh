@@ -38,15 +38,15 @@ function countdown()
     case $1 in
         w)
             printf "\r${bold}$i: ${bold}${CYAN}Work done - Yeah!$NO_COLOUR${normal}\n"
-            aplay ./assets/yeehaaw.wav &>/dev/null &disown
+            aplay "./assets/break.wav" &>/dev/null &disown
             ;;
         sb)
             printf "\r   ${GRAY}Short break done${NO_COLOUR}     \n"
-            aplay ./assets/gong.wav &>/dev/null &disown
+            aplay "./assets/work.wav" &>/dev/null &disown
             ;;
         lb)
             printf "\r   ${GRAY}Long break done${NO_COLOUR}    \n"
-            aplay ./assets/gong.wav &>/dev/null &disown
+            aplay "./assets/pomodoro.wav" &>/dev/null &disown
             ;;
     esac
 
