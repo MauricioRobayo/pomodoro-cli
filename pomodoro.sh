@@ -5,29 +5,30 @@ function countdown()
 {
 
     local bold=$(tput bold)
-    local normal=$(tput sgr0)
-    local GRAY="\033[0;37m"
-    local CYAN="\033[1;36m"
-    local NO_COLOUR="\033[0m"
+    local gray=$(tput setaf 8)
+    local cyan=$(tput setaf 6)
+    local reset=$(tput sgr0)
+    local cl_line=$(tput el) # clear to end of line
 
-    sec_rem=$2
+    local sec_rem=$2
+    local seconds=0
+    local minutes=0  
 
-    while [ $sec_rem -gt 0 ]; do 
+    while [[ $sec_rem -gt 0 ]]; do 
 
-        sec_rem=$[ $sec_rem - 1 ]
-
-        seconds=$[ $sec_rem % 60 ]
-        minutes=$[ $sec_rem / 60 ]
+        sec_rem=$(( $sec_rem - 1 ))
+        seconds=$(( $sec_rem % 60 ))
+        minutes=$(( $sec_rem / 60 ))
 
         case $1 in
             w)
-                printf "\r${bold}$i: Work!${normal} [${GRAY}%02d:%02d${NO_COLOUR}]"  $minutes $seconds
+                printf "\r${bold}$i: Work!${normal} [${gray}%02d:%02d${reset}]"  $minutes $seconds
                 ;;
             sb)
-                printf "\r   Short break [${GRAY}%02d:%02d${NO_COLOUR}]"  $minutes $seconds
+                printf "\r   Short break [${gray}%02d:%02d${reset}]"  $minutes $seconds
                 ;;
             lb)
-                printf "\r   Long break [${GRAY}%02d:%02d${NO_COLOUR}]"  $minutes $seconds
+                printf "\r   Long break [${gray}%02d:%02d${reset}]"  $minutes $seconds
                 ;;
         esac
 
@@ -37,41 +38,47 @@ function countdown()
 
     case $1 in
         w)
-            printf "\r${bold}$i: ${bold}${CYAN}Work done - Yeah!$NO_COLOUR${normal}\n"
-            aplay "./assets/break.wav" &>/dev/null &disown
+            printf "\r${bold}$i: ${cyan}Work done - Yeah!${reset}\n"
+            aplay "${appdir}/assets/break.wav" &>/dev/null &disown
             ;;
         sb)
-            printf "\r   ${GRAY}Short break done${NO_COLOUR}     \n"
-            aplay "./assets/work.wav" &>/dev/null &disown
+            printf "\r${cl_line}   ${gray}Short break done${reset}\n"
+            aplay "${appdir}/assets/work.wav" &>/dev/null &disown
             ;;
         lb)
-            printf "\r   ${GRAY}Long break done${NO_COLOUR}    \n"
-            aplay "./assets/pomodoro.wav" &>/dev/null &disown
+            printf "\r${cl_line}   ${reset}Long break done${reset}\n"
+            aplay "${appdir}/assets/pomodoro.wav" &>/dev/null &disown
             ;;
     esac
 
 }
 
-# default values 
-if [ $# = 0 ];then
-    pomodoros=4
-    work=25 # minutes
-    short_break=5 # minutes
-    long_break=15 # minutes
-else
-    pomodoros=$1
-    work=$2
-    short_break=$3
-    long_break=$4
+# exit if argumentos not equal to zero or four
+if ! [ $# -eq 0 -o $# -eq 4 ];then
+   echo "Usage ${0##*/}: [pomodoros work short_break long_break]"
+   exit 1
 fi
 
+# get realpath of script to load assets
+realpath=$(realpath ${0})
+appdir=${realpath%/*}
+
+# default values 
+pomodoros=${1:-4}
+work=${2:-25}
+short_break=${3:-5}
+long_break=${4:-15}
+    
+# be nice, tell user what he is facing ahead
 echo "Pomodoro $pomodoros $work $short_break $long_break"
 
-work=$[ $work * 60 ]
-short_break=$[ $short_break * 60 ]
-long_break=$[ $long_break * 60 ]
+# convert everything to seconds
+work=$(( $work * 60 ))
+short_break=$(( $short_break * 60 ))
+long_break=$(( $long_break * 60 ))
 
-for i in $(seq 1 $pomodoros);do
+# lets go!
+for ((i=1; i<=pomodoros; i++));do
 	countdown w $work
 	if [ $i -lt $pomodoros ]; then
 		countdown sb $short_break
