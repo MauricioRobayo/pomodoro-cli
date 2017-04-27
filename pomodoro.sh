@@ -55,7 +55,7 @@ function countdown()
 
 # exit if argumentos not equal to zero or four
 if ! [ $# -eq 0 -o $# -eq 4 ];then
-   echo "Usage ${0##*/}: [pomodoros work short_break long_break]"
+   printf "Usage %s: [pomodoros work short_break long_break]\n" ${0##*/}
    exit 1
 fi
 
