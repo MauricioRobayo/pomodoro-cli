@@ -4,6 +4,7 @@ To use it just invoke the script on your shell:
 
     $ git clone https://github.com/archimiro/pomodoro-cli.git
     $ cd pomodoro-cli
+    $ chmod u+x pomodoro.sh
     $ ./pomodoro.sh
 
 This will run a default pomodoro timer with 4 pomodoros of 25 minutes work time, 5 minutes short breaks, and 15 minutes long break.
