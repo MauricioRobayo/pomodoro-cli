@@ -1,8 +1,8 @@
-# Command Line Pomodoro Timer
+# Command Line Pomodoro Timer [![GitHub issues](https://img.shields.io/github/release/archimiro/pomodoro-cli.svg)](https://github.com/archimiro/pomodoro-cli/releases)
 
-[![GitHub issues](https://img.shields.io/github/release/archimiro/pomodoro-cli.svg)](https://github.com/archimiro/pomodoro-cli/releases)
+The infamous poorman Pomodoro Timer for the command line, written in `GNU bash, version 4`. No intended to be POSIX standard compatible.
 
-To use it just invoke the script on your shell:
+To use it, clone the repository and execute the `pomodoro.sh` script:
 
     $ git clone https://github.com/archimiro/pomodoro-cli.git
     $ cd pomodoro-cli
