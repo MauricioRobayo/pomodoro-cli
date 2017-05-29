@@ -1,88 +1,100 @@
 #!/bin/bash 
 
+bold=$(tput bold)
+gray=$(tput setaf 8)
+cyan=$(tput setaf 6)
+reset=$(tput sgr0)
+player=aplay
 
-function countdown()
+set -o nounset # using a variable not set will raise an error.
+set -o errexit # exit script if a command fails.
+
+countdown ()
 {
-
-    local bold=$(tput bold)
-    local gray=$(tput setaf 8)
-    local cyan=$(tput setaf 6)
-    local reset=$(tput sgr0)
-    local cl_line=$(tput el) # clear to end of line
-
     local sec_rem=$2
     local seconds=0
-    local minutes=0  
-
-    while [[ $sec_rem -gt 0 ]]; do 
-
+    local minutes=0
+    local cl_line=$(tput el)
+    # get realpath of script to load assets
+    local realpath=$(realpath ${0})
+    local appdir=${realpath%/*}  
+    while (( $sec_rem > 0 )); do 
         sec_rem=$(( $sec_rem - 1 ))
         seconds=$(( $sec_rem % 60 ))
         minutes=$(( $sec_rem / 60 ))
-
         case $1 in
-            w)
-                printf "\r${bold}$i: Work!${normal} [${gray}%02d:%02d${reset}]"  $minutes $seconds
+            work)
+                printf "\r$i: ${bold}Work!${reset} [${gray}%02d:%02d${reset}]"  $minutes $seconds
                 ;;
-            sb)
+            short-break)
                 printf "\r   Short break [${gray}%02d:%02d${reset}]"  $minutes $seconds
                 ;;
-            lb)
+            long-break)
                 printf "\r   Long break [${gray}%02d:%02d${reset}]"  $minutes $seconds
                 ;;
         esac
-
         sleep 1
-
     done
-
     case $1 in
-        w)
+        work)
             printf "\r${bold}$i: ${cyan}Work done - Yeah!${reset}\n"
-            aplay "${appdir}/assets/break.wav" &>/dev/null &disown
+            ${player} "${appdir}/assets/break.wav" &>/dev/null &disown
             ;;
-        sb)
-            printf "\r${cl_line}   ${gray}Short break done${reset}\n"
-            aplay "${appdir}/assets/work.wav" &>/dev/null &disown
+        short-break)
+            printf "\r${cl_line}   ${gray}Short break done.${reset}\n"
+            ${player} "${appdir}/assets/work.wav" &>/dev/null &disown
             ;;
-        lb)
-            printf "\r${cl_line}   ${reset}Long break done${reset}\n"
-            aplay "${appdir}/assets/pomodoro.wav" &>/dev/null &disown
+        long-break)
+            printf "\r${cl_line}   ${gray}Long break done.${reset}\n"
+            ${player} "${appdir}/assets/pomodoro.wav" &>/dev/null &disown
             ;;
     esac
-
 }
 
-# exit if argumentos not equal to zero or four
-if ! [ $# -eq 0 -o $# -eq 4 ];then
-   printf "Usage %s: [pomodoros work short_break long_break]\n" ${0##*/}
-   exit 1
-fi
+main ()
+{
+    # default values 
+    local pomodoros=${1:-4}
+    local work=${2:-25}
+    local short_break=${3:-5}
+    local long_break=${4:-15}
+    local period=${5:-m}
+    local pomodoro_count=1
+    # exit if arguments not equal to zero or four
+    if ! (( $# == 0 || $# >= 4 ));then
+        printf "Usage %s: [pomodoros=%d work=%d short_break=%d long_break=%d]\n" "${0##*/}" ${pomodoros} ${work} ${short_break} ${long_break}
+        exit 1
+    fi
+    # be nice, tell user what he is facing ahead
+    printf "Pomodoro %s %s %s %s\n" $pomodoros $work $short_break $long_break
+    # convert everything to seconds
+    if [[ "${period}" != "s" ]];then
+        work=$(( $work * 60 ))
+        short_break=$(( $short_break * 60 ))
+        long_break=$(( $long_break * 60 ))
+    fi
+    read -p "Task name (q to quit): " ans
+    [[ $ans == "" ]] && task="New task" || task="${ans}"
+    # lets go!
+    while true;do
+        if [[ "${ans}" == "q" ]]; then
+            work_done=$(( $work * $pomodoros * ( $pomodoro_count - 1 ) ))
+            [[ "${period}" != "s" ]] && work_done=$(( work_done / 60 ))
+            printf "Total work done on '%s': %s%s\n" "${bold}${task}${reset}" ${work_done} ${period}
+            break
+        fi
+        printf "Working on '%s'.\n" "${bold}${task}${reset}"
+        for ((i=pomodoros*pomodoro_count-pomodoros+1; i<=pomodoros*pomodoro_count; i++));do
+            countdown work $work
+            if (( $i < pomodoros * pomodoro_count )); then
+                countdown short-break $short_break
+            else
+                countdown long-break $long_break
+            fi
+        done
+        (( pomodoro_count++ ))
+        read -p "Press Enter to continue with '${task}' or q to quit: " ans
+    done
+}
 
-# get realpath of script to load assets
-realpath=$(realpath ${0})
-appdir=${realpath%/*}
-
-# default values 
-pomodoros=${1:-4}
-work=${2:-25}
-short_break=${3:-5}
-long_break=${4:-15}
-    
-# be nice, tell user what he is facing ahead
-echo "Pomodoro $pomodoros $work $short_break $long_break"
-
-# convert everything to seconds
-work=$(( $work * 60 ))
-short_break=$(( $short_break * 60 ))
-long_break=$(( $long_break * 60 ))
-
-# lets go!
-for ((i=1; i<=pomodoros; i++));do
-	countdown w $work
-	if [ $i -lt $pomodoros ]; then
-		countdown sb $short_break
-	else
-		countdown lb $long_break
-	fi
-done
+main "$@"
