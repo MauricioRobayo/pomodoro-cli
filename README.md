@@ -1,5 +1,7 @@
 # Command Line Pomodoro Timer
 
+[![GitHub issues](https://img.shields.io/github/release/archimiro/pomodoro-cli.svg)](https://github.com/archimiro/pomodoro-cli/releases)
+
 To use it just invoke the script on your shell:
 
     $ git clone https://github.com/archimiro/pomodoro-cli.git
@@ -15,7 +17,7 @@ You can also specify a custom pomodoro timer in the following form:
 
 Which will run 2 pomodoros of 10 minutes work time, 5 minutes short breaks, and 10 minutes long break.
 
-If you prefer to measure in seconds, you can add a final s argument:
+If you prefer to measure in seconds, you can add a final `s` argument:
 
     $ ./pomodoro.sh 2 10 5 10 s
 
