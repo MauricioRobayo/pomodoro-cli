@@ -60,7 +60,7 @@ main ()
     local long_break=${4:-15}
     local period=${5:-m}
     local pomodoro_count=1
-    # exit if arguments not equal to zero or four
+    # Arguments must be 4 or more, or no arguments at all
     if ! (( $# == 0 || $# >= 4 ));then
         printf "Usage %s: [pomodoros=%d work=%d short_break=%d long_break=%d]\n" "${0##*/}" ${pomodoros} ${work} ${short_break} ${long_break}
         exit 1
@@ -68,7 +68,7 @@ main ()
     # be nice, tell user what he is facing ahead
     printf "Pomodoro %s %s %s %s\n" $pomodoros $work $short_break $long_break
     # convert everything to seconds
-    if [[ "${period}" != "s" ]];then
+    if [[ ${period} != s ]];then
         work=$(( $work * 60 ))
         short_break=$(( $short_break * 60 ))
         long_break=$(( $long_break * 60 ))
