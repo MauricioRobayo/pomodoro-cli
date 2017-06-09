@@ -51,24 +51,18 @@ countdown ()
     esac
 }
 
-main ()
+pomodoro ()
 {
-    # default values 
-    local pomodoros=${1:-4}
-    local work=${2:-25}
-    local short_break=${3:-5}
-    local long_break=${4:-15}
-    local period=${5:-m}
+    read pomodoros work short_break long_break <<< $1
+    local period=$2
     local pomodoro_count=1
-    # Arguments must be 4 or more, or no arguments at all
-    if ! (( $# == 0 || $# >= 4 ));then
-        printf "Usage %s: [pomodoros=%d work=%d short_break=%d long_break=%d]\n" "${0##*/}" ${pomodoros} ${work} ${short_break} ${long_break}
-        exit 1
-    fi
     # be nice, tell user what he is facing ahead
-    printf "Pomodoro %s %s %s %s\n" $pomodoros $work $short_break $long_break
+    printf "Pomodoros: %s\n" "${pomodoros}"
+    printf "Work: %s %s\n" "${work}" "${period}"
+    printf "Short break: %s %s\n" "${short_break}" "${period}"  
+    printf "Long Break: %s %s\n" "${long_break}" "${period}"
     # convert everything to seconds
-    if [[ ${period} != s ]];then
+    if [[ ${period} != seconds ]];then
         work=$(( $work * 60 ))
         short_break=$(( $short_break * 60 ))
         long_break=$(( $long_break * 60 ))
@@ -80,8 +74,8 @@ main ()
         if [[ $ans == q ]]; then
             if [[ $task != q ]]; then
                 work_done=$(( $work * $pomodoros * ( $pomodoro_count - 1 ) ))
-                [[ ${period} != s ]] && work_done=$(( work_done / 60 ))
-                printf "Total work done on '%s': %s%s\n" "${bold}${task}${reset}" ${work_done} ${period}
+                [[ ${period} != seconds ]] && work_done=$(( work_done / 60 ))
+                printf "Total work done on '%s': %s %s.\n" "${bold}${task}${reset}" ${work_done} ${period}
             fi
             break
         fi
@@ -97,6 +91,22 @@ main ()
         (( pomodoro_count++ ))
         read -p "Press Enter to continue with '${task}' or q to quit: " ans
     done
+}
+
+main ()
+{
+    # default values
+    local interval="4 25 5 15"
+    local period=minutes
+    # set options in defined by user
+    while getopts ":si:" opt; do
+        case $opt in
+            s) period=seconds ;;
+            i) interval=$OPTARG ;;
+            \?) echo "Invalid option: -$OPTARG" >&2 ;;
+        esac
+    done
+    pomodoro "${interval}" "${period}"
 }
 
 main "$@"
