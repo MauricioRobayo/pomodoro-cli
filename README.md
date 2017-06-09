@@ -19,7 +19,7 @@ Which will run 2 pomodoros of 10 minutes work time, 5 minutes short breaks, and 
 
 If you prefer to measure in seconds, you can add the `-s` option:
 
-    $ ./pomodoro.sh -s
+    $ ./pomodoro -s
 
 Will run the default pomodoro but will measure time in seconds rather than in minutes.
 
