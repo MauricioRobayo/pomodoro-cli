@@ -77,10 +77,12 @@ main ()
     [[ $ans == "" ]] && task="New task" || task="${ans}"
     # lets go!
     while true;do
-        if [[ "${ans}" == "q" ]]; then
-            work_done=$(( $work * $pomodoros * ( $pomodoro_count - 1 ) ))
-            [[ "${period}" != "s" ]] && work_done=$(( work_done / 60 ))
-            printf "Total work done on '%s': %s%s\n" "${bold}${task}${reset}" ${work_done} ${period}
+        if [[ $ans == q ]]; then
+            if [[ $task != q ]]; then
+                work_done=$(( $work * $pomodoros * ( $pomodoro_count - 1 ) ))
+                [[ ${period} != s ]] && work_done=$(( work_done / 60 ))
+                printf "Total work done on '%s': %s%s\n" "${bold}${task}${reset}" ${work_done} ${period}
+            fi
             break
         fi
         printf "Working on '%s'.\n" "${bold}${task}${reset}"
